@@ -1,16 +1,17 @@
-# mkdocs.yml
-
-site_name: Project Sentinel
+site_name: "Project Sentinel"
 site_description: "Deterministic pricing infrastructure for US GovCon and Civilian Infrastructure contractors."
-site_author: Invariant
-site_url: https://sentinel.invariant.io
+site_author: "Invariant"
+site_url: "https://sub2mval.github.io/project-sentinel/"
 
 theme:
   name: material
   palette:
-    scheme: slate
-    primary: black
-    accent: deep orange
+    - scheme: slate
+      primary: black
+      accent: deep-orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   font:
     text: IBM Plex Sans
     code: IBM Plex Mono
@@ -23,23 +24,20 @@ theme:
     - toc.integrate
     - content.code.copy
     - content.code.annotate
-    - announce.dismiss
   icon:
     logo: material/shield-lock-outline
-    repo: fontawesome/brands/github
   favicon: assets/favicon.ico
 
 extra:
   social:
     - icon: fontawesome/brands/linkedin
-      link: https://linkedin.com/company/invariant
-  analytics:
-    provider: google
-    property: G-XXXXXXXXXX
+      link: "https://linkedin.com/company/invariant"
 
 plugins:
   - search
-  - mermaid2
+  - mermaid2:
+      arguments:
+        theme: dark
 
 markdown_extensions:
   - admonition
@@ -48,7 +46,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+          format: !!python/name:mermaid2.fence_mermaid_custom
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
