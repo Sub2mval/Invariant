@@ -1,9 +1,11 @@
-<!-- docs/index.md -->
-
 ---
 hide:
   - toc
 ---
+
+<!-- docs/index.md -->
+
+
 
 # Project Sentinel
 
