@@ -210,46 +210,82 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#stage-a-task-decomposer">
+<a class="md-nav__link" href="#stage-a-task-decomposer-agent">
 <span class="md-ellipsis">
       
-        Stage A — Task Decomposer
+        Stage A — Task Decomposer Agent
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#stage-b-hil-checkpoint">
+<a class="md-nav__link" href="#stage-b-human-auditor-gate-execution-plan">
 <span class="md-ellipsis">
       
-        Stage B — HIL Checkpoint
+        Stage B — Human Auditor Gate (Execution Plan)
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#stage-c-deep-research-fan-out">
+<a class="md-nav__link" href="#stage-c-checklist-agent">
 <span class="md-ellipsis">
       
-        Stage C — Deep Research Fan-Out
+        Stage C — Checklist Agent
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#stage-d-compiler">
+<a class="md-nav__link" href="#stage-d-deep-research-swarm">
 <span class="md-ellipsis">
       
-        Stage D — Compiler
+        Stage D — Deep Research Swarm
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#configuration-schema">
+<a class="md-nav__link" href="#stage-e-human-auditor-gate-cost-of-contract-db">
 <span class="md-ellipsis">
       
-        Configuration Schema
+        Stage E — Human Auditor Gate (Cost of Contract DB)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stage-f-long-context-agent">
+<span class="md-ellipsis">
+      
+        Stage F — Long Context Agent
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stage-g-human-auditor-gate-final-output">
+<span class="md-ellipsis">
+      
+        Stage G — Human Auditor Gate (Final Output)
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#data-flow-summary">
+<span class="md-ellipsis">
+      
+        Data Flow Summary
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration-reference">
+<span class="md-ellipsis">
+      
+        Configuration Reference
       
     </span>
 </a>
@@ -290,131 +326,183 @@
 <article class="md-content__inner md-typeset">
 <!-- docs/architecture.md -->
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h1>
-<p><strong>Project Sentinel is a four-stage, deterministic pipeline.</strong> Each stage has a defined input contract, a defined output schema, and explicit failure modes. There are no probabilistic black boxes between ingestion and output.</p>
+<p><strong>Project Sentinel is a multi-agent, human-gated pricing pipeline.</strong> Each stage has a defined input contract, a defined output schema, and explicit failure modes. The Cost of Contract DB is the central state store — every agent reads from and writes to it. No agent communicates directly with another.</p>
 <hr/>
 <h2 id="pipeline-overview">Pipeline Overview<a class="headerlink" href="#pipeline-overview" title="Permanent link">¶</a></h2>
-<pre class="mermaid"><code>stateDiagram-v2
-    direction LR
+<pre class="mermaid"><code>flowchart TD
+    SAM["SAM.gov"] --&gt;|creates| PDF["Gov Contract\nSolicitation PDF"]
+    PDF --&gt;|read by| TDA["Task Decomposer\nAgent"]
 
-    [*] --&gt; A : RFP document ingested
+    TDA --&gt;|creates| EP["Execution Plan"]
+    EP --&gt;|read by| HA["Human Auditor"]
+    HA --&gt;|Approve / Modify| EP
 
-    state A {
-        [*] --&gt; parsing : PDF/DOCX received
-        parsing --&gt; wbs_extraction : Sections L, M, PWS parsed
-        wbs_extraction --&gt; schema_validation : WBS nodes structured
-        schema_validation --&gt; [*] : JSON WBS emitted
-    }
+    EP --&gt;|read by| CA["Checklist Agent"]
+    CA --&gt;|Constraint queries| CDB["Client Database"]
+    CDB --&gt;|results| CA
 
-    A --&gt; B : Structured WBS passed
+    CA --&gt;|creates| CCDB[("Cost of Contract DB")]
 
-    state B {
-        [*] --&gt; inventory_match : Line items mapped to internal catalog
-        inventory_match --&gt; constraint_check : Coverage gaps identified
-        constraint_check --&gt; hil_pause : Estimator review triggered
-        hil_pause --&gt; approval_gate : Human reviews flagged items
-        approval_gate --&gt; [*] : Approved constraint manifest signed
-    }
+    CCDB --&gt;|queries| DR1["Deep Research 1"]
+    CCDB --&gt;|queries| DR2["Deep Research 2"]
+    CCDB --&gt;|queries| DR3["Deep Research 3"]
 
-    B --&gt; C : Constraint manifest approved
+    DR1 --&gt;|MCP / API / A2A| WEB["Web Search"]
+    DR2 --&gt;|MCP / API / A2A| TOOLS["Approved Tools"]
+    DR3 --&gt;|MCP / API / A2A| PROPDB["Proprietary Database"]
 
-    state C {
-        [*] --&gt; agent_dispatch : MCP agents spawned per open line item
-        agent_dispatch --&gt; gsa_query : GSA Advantage / eBuy queried
-        agent_dispatch --&gt; sam_query : SAM.gov historical awards queried
-        agent_dispatch --&gt; commercial_query : Open-market commercial sources queried
-        gsa_query --&gt; price_reconciliation
-        sam_query --&gt; price_reconciliation
-        commercial_query --&gt; price_reconciliation
-        price_reconciliation --&gt; [*] : Lowest verifiable price selected, source logged
-    }
+    DR1 --&gt;|results| CCDB
+    DR2 --&gt;|results| CCDB
+    DR3 --&gt;|results| CCDB
 
-    C --&gt; D : Price-substantiated line items passed
+    HA --&gt;|Approve / Modify| CCDB
 
-    state D {
-        [*] --&gt; aggregation : All line items merged
-        aggregation --&gt; cross_reference : WBS IDs linked to price sources
-        cross_reference --&gt; baseline_lock : Financial baseline locked
-        baseline_lock --&gt; export : XLSX / SQL artifact generated
-        export --&gt; [*] : Audit-ready output delivered
-    }
+    CCDB --&gt;|summarized| LCA["Long Context Agent"]
+    LCA --&gt;|creates| PDF2["Bid Cost\nReport PDF"]
+    LCA --&gt;|creates| XLS["Excel Baseline"]
 
-    D --&gt; [*] : Baseline delivered to proposal team
+    BU["Business User"] --&gt;|queries| LCA
+    LCA --&gt;|response| BU
+
+    HA --&gt;|Approve / Modify| LCA
+
+    subgraph invariant["Invariant System"]
+        TDA
+        EP
+        CA
+        CCDB
+        DR1
+        DR2
+        DR3
+        LCA
+    end
+
+    subgraph swarm["Deep Research Swarm"]
+        DR1
+        DR2
+        DR3
+    end
 </code></pre>
 <hr/>
-<h2 id="stage-a-task-decomposer">Stage A — Task Decomposer<a class="headerlink" href="#stage-a-task-decomposer" title="Permanent link">¶</a></h2>
-<p><strong>Input:</strong> Raw RFP file (PDF, DOCX, or SAM.gov API payload)
-<strong>Output:</strong> Leveled WBS in validated JSON schema</p>
-<p>The Task Decomposer parses the Statement of Work, Section L (Instructions), and Section M (Evaluation Criteria) using a structured extraction model trained on FAR Part 15 document conventions. It does not summarize. It identifies discrete deliverables, labor categories, ODC line items, and period-of-performance constraints and maps them to a formal WBS hierarchy (Level 1–4).</p>
-<p><strong>Failure mode:</strong> If the PWS is ambiguous or cross-references an attachment not included in the upload, the stage flags the gap as an unresolved node and routes it to the HIL checkpoint rather than inferring a value.
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="p">{</span>
-<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">"wbs_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.2.3"</span><span class="p">,</span>
-<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"On-Site Field Technician Support"</span><span class="p">,</span>
-<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="nt">"labor_category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Field Technician II"</span><span class="p">,</span>
-<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">  </span><span class="nt">"period_of_performance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12 months"</span><span class="p">,</span>
-<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="nt">"estimated_hours"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="nt">"constraint_source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PWS Section 4.2"</span><span class="p">,</span>
-<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"open"</span>
-<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="p">}</span>
-</code></pre></div></p>
+<h2 id="stage-a-task-decomposer-agent">Stage A — Task Decomposer Agent<a class="headerlink" href="#stage-a-task-decomposer-agent" title="Permanent link">¶</a></h2>
+<p><strong>Input:</strong> SAM.gov Gov Contract Solicitation PDF
+<strong>Output:</strong> Structured Execution Plan</p>
+<p>The Task Decomposer ingests the raw solicitation document and extracts a formal, leveled Work Breakdown Structure against the SOW, Section L, and Section M. Output is a discrete Execution Plan — a machine-readable list of deliverables, labor categories, ODC line items, and period-of-performance constraints.</p>
+<p>The Execution Plan is immediately routed to the Human Auditor before any downstream agent acts on it. No checklist agent, no database write, no research is initiated until the Human Auditor approves or modifies the plan.</p>
+<p><strong>Failure mode:</strong> If the PWS references an attachment absent from the upload, the node is flagged <code>unresolvable</code> and surfaced in the Human Auditor review queue. The pipeline does not infer a value.</p>
 <hr/>
-<h2 id="stage-b-hil-checkpoint">Stage B — HIL Checkpoint<a class="headerlink" href="#stage-b-hil-checkpoint" title="Permanent link">¶</a></h2>
-<p><strong>Input:</strong> Structured WBS JSON
-<strong>Output:</strong> Approved constraint manifest (signed with estimator ID and timestamp)</p>
-<p>This is the mandatory human gate. Sentinel maps each WBS node against the client's internal labor category catalog, subcontractor roster, and equipment inventory. Line items with an existing internal source are marked <code>covered</code>. Line items with no match are marked <code>open</code> and queued for external research.</p>
-<p>The estimator reviews the <code>open</code> queue, confirms or overrides categorizations, and digitally approves the manifest. <strong>No external research agent is spun up until this approval is recorded.</strong> This is not a UX nicety. It is an architectural constraint that prevents unauthorized external data exposure and ensures the estimator retains direct responsibility for the scope definition.</p>
-<div class="admonition warning">
-<p class="admonition-title">HIL is Not Optional</p>
-<p>Stage C will not execute without a cryptographically signed approval token from Stage B. This is enforced at the pipeline level, not the application level.</p>
-</div>
+<h2 id="stage-b-human-auditor-gate-execution-plan">Stage B — Human Auditor Gate (Execution Plan)<a class="headerlink" href="#stage-b-human-auditor-gate-execution-plan" title="Permanent link">¶</a></h2>
+<p><strong>This is the first of three human intervention points.</strong></p>
+<p>The Human Auditor reviews the Execution Plan produced by the Task Decomposer. They may approve it as-is or modify any node before the Checklist Agent reads it. The approved plan is the authoritative scope definition for the remainder of the pipeline run.</p>
+<p>No agent in the Invariant System proceeds past this gate without a recorded approval. The approval is timestamped and identity-linked.</p>
 <hr/>
-<h2 id="stage-c-deep-research-fan-out">Stage C — Deep Research Fan-Out<a class="headerlink" href="#stage-c-deep-research-fan-out" title="Permanent link">¶</a></h2>
-<p><strong>Input:</strong> Approved constraint manifest
-<strong>Output:</strong> Price-substantiated line item records with source citations</p>
-<p>For each <code>open</code> line item, Sentinel dispatches a dedicated MCP agent. Agents run in parallel, bounded by configurable concurrency limits. Each agent is scoped to a single line item and a defined source priority order:</p>
-<ol>
-<li>GSA Advantage / GSA eBuy (contract vehicles)</li>
-<li>SAM.gov historical contract awards (FPDS-NG data)</li>
-<li>FOIA-released pricing disclosures</li>
-<li>Verified open-market commercial sources</li>
-</ol>
-<p>The agent selects the <strong>lowest verifiable price</strong> that satisfies the specification constraints. It does not interpolate between sources. If no verifiable price is found within the source hierarchy, the line item is returned as <code>unresolved</code> with the research log attached—never with a fabricated value.</p>
-<p><strong>Source integrity:</strong> Every price record includes the source URL, retrieval timestamp, contract vehicle number (if applicable), and the specific specification match criteria used.</p>
+<h2 id="stage-c-checklist-agent">Stage C — Checklist Agent<a class="headerlink" href="#stage-c-checklist-agent" title="Permanent link">¶</a></h2>
+<p><strong>Input:</strong> Approved Execution Plan
+<strong>Output:</strong> Populated Cost of Contract DB entries</p>
+<p>The Checklist Agent maps every line item in the Execution Plan against the Client Database — the client's internal inventory of labor categories, subcontractors, equipment, and historical pricing. Items with an existing internal source are marked <code>covered</code> and written to the Cost of Contract DB with their internal price. Items with no match are marked <code>open</code> and queued for the Deep Research Swarm.</p>
+<p>The Cost of Contract DB is the central state store for the remainder of the pipeline. All subsequent agents read from and write to it exclusively.</p>
 <hr/>
-<h2 id="stage-d-compiler">Stage D — Compiler<a class="headerlink" href="#stage-d-compiler" title="Permanent link">¶</a></h2>
-<p><strong>Input:</strong> Price-substantiated line item records + approved WBS
-<strong>Output:</strong> Locked financial baseline in XLSX and/or SQL</p>
-<p>The Compiler aggregates all priced line items, links each to its WBS node ID, applies the fee/wrap rate structure defined in the client's configuration, and generates the baseline artifact. The output schema is fixed and validated against the client's proposal template on every run.</p>
-<p><strong>Output targets:</strong></p>
+<h2 id="stage-d-deep-research-swarm">Stage D — Deep Research Swarm<a class="headerlink" href="#stage-d-deep-research-swarm" title="Permanent link">¶</a></h2>
+<p><strong>Input:</strong> <code>open</code> line items queried from the Cost of Contract DB
+<strong>Output:</strong> Price-substantiated records written back to the Cost of Contract DB</p>
+<p>The swarm consists of N parallel Deep Research agents, each scoped to a single open line item. Agents are stateless — they receive a specification query from the Cost of Contract DB, execute research against their assigned external source, and write a price record with full source citation back to the DB.</p>
+<p>Each agent connects to external sources exclusively via MCP, REST API, or A2A protocol:</p>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>External Source</th>
+<th>Protocol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deep Research 1</td>
+<td>Web Search (GSA, FPDS-NG, open market)</td>
+<td>MCP / API</td>
+</tr>
+<tr>
+<td>Deep Research 2</td>
+<td>Approved Tools (GSA Advantage, eBuy, unison.com)</td>
+<td>MCP / API</td>
+</tr>
+<tr>
+<td>Deep Research 3</td>
+<td>Proprietary Database (client-specific historical awards)</td>
+<td>A2A / API</td>
+</tr>
+</tbody>
+</table>
+<p>No agent selects its own source. Source assignment is defined in the client configuration file and enforced at the swarm dispatcher level.</p>
+<p>If no verifiable price is found within the source hierarchy, the line item is returned as <code>unresolved</code> with the full research log attached. The DB is never written with a fabricated or interpolated value.</p>
+<hr/>
+<h2 id="stage-e-human-auditor-gate-cost-of-contract-db">Stage E — Human Auditor Gate (Cost of Contract DB)<a class="headerlink" href="#stage-e-human-auditor-gate-cost-of-contract-db" title="Permanent link">¶</a></h2>
+<p><strong>This is the second human intervention point.</strong></p>
+<p>Before the Long Context Agent compiles the baseline, the Human Auditor reviews the populated Cost of Contract DB. They may approve individual line items, override prices, or flag items for re-research. Overrides are logged with a mandatory justification field.</p>
+<p>This gate exists because the swarm may surface multiple valid prices for a single line item. The Human Auditor's override is the mechanism for applying judgment that cannot be encoded in a specification match — incumbent relationships, teaming partner commitments, strategic price-to-win positioning.</p>
+<hr/>
+<h2 id="stage-f-long-context-agent">Stage F — Long Context Agent<a class="headerlink" href="#stage-f-long-context-agent" title="Permanent link">¶</a></h2>
+<p><strong>Input:</strong> Approved Cost of Contract DB
+<strong>Output:</strong> Bid Cost Report (PDF), Excel financial baseline</p>
+<p>The Long Context Agent holds the entire Cost of Contract DB in context and compiles the final deliverables. It cross-references every line item to its WBS node, applies the fee and wrap rate structure from the client configuration, and generates the locked financial baseline.</p>
+<p>The Long Context Agent also serves as the <strong>live query interface for the Business User.</strong> After baseline compilation, the Business User (VP of Capture, Chief Estimator, or Proposal Manager) can query the agent directly — asking questions against the compiled baseline, requesting scenario variations, or drilling into the source citation for a specific line item. The agent responds within the context of the locked, approved baseline. It does not modify the baseline in response to queries.</p>
+<p><strong>Output artifacts:</strong></p>
 <ul>
-<li><strong>XLSX:</strong> Pre-formatted to client proposal template (cost volume structure)</li>
-<li><strong>SQL:</strong> Direct push to client's ERP or opportunity management database</li>
-<li><strong>JSON:</strong> Machine-readable baseline for downstream proposal automation tools</li>
+<li><strong>Bid Cost Report PDF</strong> — formatted cost volume ready for proposal submission</li>
+<li><strong>Excel Baseline</strong> — cross-referenced financial model with WBS linkage and source citations</li>
 </ul>
-<p>No pricing data leaves the pipeline without the full source citation chain attached. The artifact is signed with a pipeline run ID that can be used to retrieve the full audit log at any point.</p>
 <hr/>
-<h2 id="configuration-schema">Configuration Schema<a class="headerlink" href="#configuration-schema" title="Permanent link">¶</a></h2>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nt">sentinel</span><span class="p">:</span>
-<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">pipeline</span><span class="p">:</span>
-<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="nt">concurrency_limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span><span class="w">         </span><span class="c1"># Max parallel MCP agents in Stage C</span>
-<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="nt">hil_timeout_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">48</span><span class="w">         </span><span class="c1"># Stage B approval window before RFP is flagged stale</span>
-<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="nt">unresolved_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span><span class="w">    </span><span class="c1"># Max % of open line items allowed before Stage D is blocked</span>
-<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>
-<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">  </span><span class="nt">sources</span><span class="p">:</span>
-<a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="nt">priority_order</span><span class="p">:</span>
-<a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gsa_advantage</span>
-<a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fpds_ng</span>
-<a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">foia_disclosures</span>
-<a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">commercial_open_market</span>
-<a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">    </span><span class="nt">commercial_domain_allowlist</span><span class="p">:</span>
-<a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grainger.com</span>
-<a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mscdirect.com</span>
-<a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gsa.gov</span>
-<a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unison.com</span>
-<a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a>
-<a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="w">  </span><span class="nt">output</span><span class="p">:</span>
-<a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="w">    </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">xlsx</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">sql</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">json</span><span class="p p-Indicator">]</span>
-<a href="#__codelineno-1-21" id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="w">    </span><span class="nt">fee_structure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client_config</span><span class="w">   </span><span class="c1"># Loaded from client profile on instantiation</span>
-<a href="#__codelineno-1-22" id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="w">    </span><span class="nt">baseline_lock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">            </span><span class="c1"># Prevents post-compilation edits without re-run</span>
+<h2 id="stage-g-human-auditor-gate-final-output">Stage G — Human Auditor Gate (Final Output)<a class="headerlink" href="#stage-g-human-auditor-gate-final-output" title="Permanent link">¶</a></h2>
+<p><strong>This is the third and final human intervention point.</strong></p>
+<p>The Human Auditor reviews the compiled Bid Cost Report and Excel baseline before they are released to the Business User or submitted as part of a proposal package. Final approval is recorded against the pipeline run ID.</p>
+<hr/>
+<h2 id="data-flow-summary">Data Flow Summary<a class="headerlink" href="#data-flow-summary" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    A["Task Decomposer\nAgent"] --&gt;|Execution Plan| B["Human Auditor\nGate 1"]
+    B --&gt;|Approved Plan| C["Checklist Agent"]
+    C --&gt;|Open items| D["Deep Research\nSwarm"]
+    D --&gt;|Priced items| E["Cost of Contract DB"]
+    C --&gt;|Covered items| E
+    E --&gt;|Review| F["Human Auditor\nGate 2"]
+    F --&gt;|Approved DB| G["Long Context Agent"]
+    G --&gt;|PDF + Excel| H["Human Auditor\nGate 3"]
+    H --&gt;|Released| I["Business User"]
+    I --&gt;|Query| G
+    G --&gt;|Response| I
+</code></pre>
+<hr/>
+<h2 id="configuration-reference">Configuration Reference<a class="headerlink" href="#configuration-reference" title="Permanent link">¶</a></h2>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nt">sentinel</span><span class="p">:</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">pipeline</span><span class="p">:</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="nt">swarm_concurrency_limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12</span>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="nt">hil_timeout_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">48</span>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="nt">unresolved_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>
+<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="nt">sources</span><span class="p">:</span>
+<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="nt">deep_research_1</span><span class="p">:</span>
+<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web_search</span>
+<a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mcp</span>
+<a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">      </span><span class="nt">domain_allowlist</span><span class="p">:</span>
+<a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gsa.gov</span>
+<a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sam.gov</span>
+<a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fpds.gov</span>
+<a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">usaspending.gov</span>
+<a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">    </span><span class="nt">deep_research_2</span><span class="p">:</span>
+<a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">approved_tools</span>
+<a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api</span>
+<a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">      </span><span class="nt">tools</span><span class="p">:</span>
+<a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gsa_advantage</span>
+<a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ebuy</span>
+<a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unison</span>
+<a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">    </span><span class="nt">deep_research_3</span><span class="p">:</span>
+<a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">proprietary_database</span>
+<a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a2a</span>
+<a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">      </span><span class="nt">connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client_config</span>
+<a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a>
+<a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">  </span><span class="nt">output</span><span class="p">:</span>
+<a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="w">    </span><span class="nt">formats</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pdf</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">xlsx</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">json</span><span class="p p-Indicator">]</span>
+<a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="w">    </span><span class="nt">fee_structure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client_config</span>
+<a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="w">    </span><span class="nt">baseline_lock</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 </article>
 </div>
