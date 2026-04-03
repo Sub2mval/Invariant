@@ -79,7 +79,7 @@ Pilot participants who proceed to a paid engagement receive preferred pricing. T
 We are accepting a limited number of pilot engagements. If your firm operates in the target market and you have a live solicitation you are willing to run through the engine, that is the basis for a conversation.
 
 <div style="text-align: center; margin: 2.5rem 0;">
-  <a href="https://forms.google.com/your-form-link-here" target="_blank" style="background-color: #e65100; color: white; padding: 14px 32px; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.03em;">
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSe9BzXjzuqd1-kILxavX0NV8PTgovWpwyVpSMWLl1d7-vhVlw/viewform?usp=publish-editor" target="_blank" style="background-color: #e65100; color: white; padding: 14px 32px; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.03em;">
     REQUEST PILOT ACCESS →
   </a>
 </div>
