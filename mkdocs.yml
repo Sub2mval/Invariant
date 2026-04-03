@@ -10,8 +10,14 @@ theme:
       primary: black
       accent: deep-orange
       toggle:
-        icon: material/brightness-4
+        icon: material/brightness-7
         name: Switch to light mode
+    - scheme: default
+      primary: black
+      accent: deep-orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
   font:
     text: IBM Plex Sans
     code: IBM Plex Mono
@@ -31,7 +37,7 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/linkedin
-      link: "https://linkedin.com/company/invariant"
+      link: "https://linkedin.com/company/invaariant"
 
 plugins:
   - search
