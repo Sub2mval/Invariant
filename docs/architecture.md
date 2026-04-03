@@ -7,63 +7,7 @@
 ---
 
 ## Pipeline Overview
-```mermaid
-flowchart TD
-    SAM["SAM.gov"] -->|creates| PDF["Gov Contract\nSolicitation PDF"]
-    PDF -->|read by| TDA["Task Decomposer\nAgent"]
-
-    TDA -->|creates| EP["Execution Plan"]
-    EP -->|read by| HA["Human Auditor"]
-    HA -->|Approve / Modify| EP
-
-    EP -->|read by| CA["Checklist Agent"]
-    CA -->|Constraint queries| CDB["Client Database"]
-    CDB -->|results| CA
-
-    CA -->|creates| CCDB[("Cost of Contract DB")]
-
-    CCDB -->|queries| DR1["Deep Research 1"]
-    CCDB -->|queries| DR2["Deep Research 2"]
-    CCDB -->|queries| DR3["Deep Research 3"]
-
-    DR1 -->|MCP / API / A2A| WEB["Web Search"]
-    DR2 -->|MCP / API / A2A| TOOLS["Approved Tools"]
-    DR3 -->|MCP / API / A2A| PROPDB["Proprietary Database"]
-
-    DR1 -->|results| CCDB
-    DR2 -->|results| CCDB
-    DR3 -->|results| CCDB
-
-    HA -->|Approve / Modify| CCDB
-
-    CCDB -->|summarized| LCA["Long Context Agent"]
-    LCA -->|creates| PDF2["Bid Cost\nReport PDF"]
-    LCA -->|creates| XLS["Excel Baseline"]
-
-    BU["Business User"] -->|queries| LCA
-    LCA -->|response| BU
-
-    HA -->|Approve / Modify| LCA
-
-    subgraph invariant["Invariant System"]
-        TDA
-        EP
-        CA
-        CCDB
-        DR1
-        DR2
-        DR3
-        LCA
-    end
-
-    subgraph swarm["Deep Research Swarm"]
-        DR1
-        DR2
-        DR3
-    end
-```
-
----
+![Sentinel Architecture Diagram](arch.png)
 
 ## Stage A — Task Decomposer Agent
 
