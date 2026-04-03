@@ -2,155 +2,207 @@
 
 # Architecture
 
-**Project Sentinel is a four-stage, deterministic pipeline.** Each stage has a defined input contract, a defined output schema, and explicit failure modes. There are no probabilistic black boxes between ingestion and output.
+**Project Sentinel is a multi-agent, human-gated pricing pipeline.** Each stage has a defined input contract, a defined output schema, and explicit failure modes. The Cost of Contract DB is the central state store — every agent reads from and writes to it. No agent communicates directly with another.
 
 ---
 
 ## Pipeline Overview
 ```mermaid
-stateDiagram-v2
-    direction LR
+flowchart TD
+    SAM["SAM.gov"] -->|creates| PDF["Gov Contract\nSolicitation PDF"]
+    PDF -->|read by| TDA["Task Decomposer\nAgent"]
 
-    [*] --> A : RFP document ingested
+    TDA -->|creates| EP["Execution Plan"]
+    EP -->|read by| HA["Human Auditor"]
+    HA -->|Approve / Modify| EP
 
-    state A {
-        [*] --> parsing : PDF/DOCX received
-        parsing --> wbs_extraction : Sections L, M, PWS parsed
-        wbs_extraction --> schema_validation : WBS nodes structured
-        schema_validation --> [*] : JSON WBS emitted
-    }
+    EP -->|read by| CA["Checklist Agent"]
+    CA -->|Constraint queries| CDB["Client Database"]
+    CDB -->|results| CA
 
-    A --> B : Structured WBS passed
+    CA -->|creates| CCDB[("Cost of Contract DB")]
 
-    state B {
-        [*] --> inventory_match : Line items mapped to internal catalog
-        inventory_match --> constraint_check : Coverage gaps identified
-        constraint_check --> hil_pause : Estimator review triggered
-        hil_pause --> approval_gate : Human reviews flagged items
-        approval_gate --> [*] : Approved constraint manifest signed
-    }
+    CCDB -->|queries| DR1["Deep Research 1"]
+    CCDB -->|queries| DR2["Deep Research 2"]
+    CCDB -->|queries| DR3["Deep Research 3"]
 
-    B --> C : Constraint manifest approved
+    DR1 -->|MCP / API / A2A| WEB["Web Search"]
+    DR2 -->|MCP / API / A2A| TOOLS["Approved Tools"]
+    DR3 -->|MCP / API / A2A| PROPDB["Proprietary Database"]
 
-    state C {
-        [*] --> agent_dispatch : MCP agents spawned per open line item
-        agent_dispatch --> gsa_query : GSA Advantage / eBuy queried
-        agent_dispatch --> sam_query : SAM.gov historical awards queried
-        agent_dispatch --> commercial_query : Open-market commercial sources queried
-        gsa_query --> price_reconciliation
-        sam_query --> price_reconciliation
-        commercial_query --> price_reconciliation
-        price_reconciliation --> [*] : Lowest verifiable price selected, source logged
-    }
+    DR1 -->|results| CCDB
+    DR2 -->|results| CCDB
+    DR3 -->|results| CCDB
 
-    C --> D : Price-substantiated line items passed
+    HA -->|Approve / Modify| CCDB
 
-    state D {
-        [*] --> aggregation : All line items merged
-        aggregation --> cross_reference : WBS IDs linked to price sources
-        cross_reference --> baseline_lock : Financial baseline locked
-        baseline_lock --> export : XLSX / SQL artifact generated
-        export --> [*] : Audit-ready output delivered
-    }
+    CCDB -->|summarized| LCA["Long Context Agent"]
+    LCA -->|creates| PDF2["Bid Cost\nReport PDF"]
+    LCA -->|creates| XLS["Excel Baseline"]
 
-    D --> [*] : Baseline delivered to proposal team
+    BU["Business User"] -->|queries| LCA
+    LCA -->|response| BU
+
+    HA -->|Approve / Modify| LCA
+
+    subgraph invariant["Invariant System"]
+        TDA
+        EP
+        CA
+        CCDB
+        DR1
+        DR2
+        DR3
+        LCA
+    end
+
+    subgraph swarm["Deep Research Swarm"]
+        DR1
+        DR2
+        DR3
+    end
 ```
 
 ---
 
-## Stage A — Task Decomposer
+## Stage A — Task Decomposer Agent
 
-**Input:** Raw RFP file (PDF, DOCX, or SAM.gov API payload)
-**Output:** Leveled WBS in validated JSON schema
+**Input:** SAM.gov Gov Contract Solicitation PDF
+**Output:** Structured Execution Plan
 
-The Task Decomposer parses the Statement of Work, Section L (Instructions), and Section M (Evaluation Criteria) using a structured extraction model trained on FAR Part 15 document conventions. It does not summarize. It identifies discrete deliverables, labor categories, ODC line items, and period-of-performance constraints and maps them to a formal WBS hierarchy (Level 1–4).
+The Task Decomposer ingests the raw solicitation document and extracts a formal, leveled Work Breakdown Structure against the SOW, Section L, and Section M. Output is a discrete Execution Plan — a machine-readable list of deliverables, labor categories, ODC line items, and period-of-performance constraints.
 
-**Failure mode:** If the PWS is ambiguous or cross-references an attachment not included in the upload, the stage flags the gap as an unresolved node and routes it to the HIL checkpoint rather than inferring a value.
-```json
-{
-  "wbs_id": "1.2.3",
-  "title": "On-Site Field Technician Support",
-  "labor_category": "Field Technician II",
-  "period_of_performance": "12 months",
-  "estimated_hours": null,
-  "constraint_source": "PWS Section 4.2",
-  "status": "open"
-}
+The Execution Plan is immediately routed to the Human Auditor before any downstream agent acts on it. No checklist agent, no database write, no research is initiated until the Human Auditor approves or modifies the plan.
+
+**Failure mode:** If the PWS references an attachment absent from the upload, the node is flagged `unresolvable` and surfaced in the Human Auditor review queue. The pipeline does not infer a value.
+
+---
+
+## Stage B — Human Auditor Gate (Execution Plan)
+
+**This is the first of three human intervention points.**
+
+The Human Auditor reviews the Execution Plan produced by the Task Decomposer. They may approve it as-is or modify any node before the Checklist Agent reads it. The approved plan is the authoritative scope definition for the remainder of the pipeline run.
+
+No agent in the Invariant System proceeds past this gate without a recorded approval. The approval is timestamped and identity-linked.
+
+---
+
+## Stage C — Checklist Agent
+
+**Input:** Approved Execution Plan
+**Output:** Populated Cost of Contract DB entries
+
+The Checklist Agent maps every line item in the Execution Plan against the Client Database — the client's internal inventory of labor categories, subcontractors, equipment, and historical pricing. Items with an existing internal source are marked `covered` and written to the Cost of Contract DB with their internal price. Items with no match are marked `open` and queued for the Deep Research Swarm.
+
+The Cost of Contract DB is the central state store for the remainder of the pipeline. All subsequent agents read from and write to it exclusively.
+
+---
+
+## Stage D — Deep Research Swarm
+
+**Input:** `open` line items queried from the Cost of Contract DB
+**Output:** Price-substantiated records written back to the Cost of Contract DB
+
+The swarm consists of N parallel Deep Research agents, each scoped to a single open line item. Agents are stateless — they receive a specification query from the Cost of Contract DB, execute research against their assigned external source, and write a price record with full source citation back to the DB.
+
+Each agent connects to external sources exclusively via MCP, REST API, or A2A protocol:
+
+| Agent | External Source | Protocol |
+|---|---|---|
+| Deep Research 1 | Web Search (GSA, FPDS-NG, open market) | MCP / API |
+| Deep Research 2 | Approved Tools (GSA Advantage, eBuy, unison.com) | MCP / API |
+| Deep Research 3 | Proprietary Database (client-specific historical awards) | A2A / API |
+
+No agent selects its own source. Source assignment is defined in the client configuration file and enforced at the swarm dispatcher level.
+
+If no verifiable price is found within the source hierarchy, the line item is returned as `unresolved` with the full research log attached. The DB is never written with a fabricated or interpolated value.
+
+---
+
+## Stage E — Human Auditor Gate (Cost of Contract DB)
+
+**This is the second human intervention point.**
+
+Before the Long Context Agent compiles the baseline, the Human Auditor reviews the populated Cost of Contract DB. They may approve individual line items, override prices, or flag items for re-research. Overrides are logged with a mandatory justification field.
+
+This gate exists because the swarm may surface multiple valid prices for a single line item. The Human Auditor's override is the mechanism for applying judgment that cannot be encoded in a specification match — incumbent relationships, teaming partner commitments, strategic price-to-win positioning.
+
+---
+
+## Stage F — Long Context Agent
+
+**Input:** Approved Cost of Contract DB
+**Output:** Bid Cost Report (PDF), Excel financial baseline
+
+The Long Context Agent holds the entire Cost of Contract DB in context and compiles the final deliverables. It cross-references every line item to its WBS node, applies the fee and wrap rate structure from the client configuration, and generates the locked financial baseline.
+
+The Long Context Agent also serves as the **live query interface for the Business User.** After baseline compilation, the Business User (VP of Capture, Chief Estimator, or Proposal Manager) can query the agent directly — asking questions against the compiled baseline, requesting scenario variations, or drilling into the source citation for a specific line item. The agent responds within the context of the locked, approved baseline. It does not modify the baseline in response to queries.
+
+**Output artifacts:**
+
+- **Bid Cost Report PDF** — formatted cost volume ready for proposal submission
+- **Excel Baseline** — cross-referenced financial model with WBS linkage and source citations
+
+---
+
+## Stage G — Human Auditor Gate (Final Output)
+
+**This is the third and final human intervention point.**
+
+The Human Auditor reviews the compiled Bid Cost Report and Excel baseline before they are released to the Business User or submitted as part of a proposal package. Final approval is recorded against the pipeline run ID.
+
+---
+
+## Data Flow Summary
+```mermaid
+flowchart LR
+    A["Task Decomposer\nAgent"] -->|Execution Plan| B["Human Auditor\nGate 1"]
+    B -->|Approved Plan| C["Checklist Agent"]
+    C -->|Open items| D["Deep Research\nSwarm"]
+    D -->|Priced items| E["Cost of Contract DB"]
+    C -->|Covered items| E
+    E -->|Review| F["Human Auditor\nGate 2"]
+    F -->|Approved DB| G["Long Context Agent"]
+    G -->|PDF + Excel| H["Human Auditor\nGate 3"]
+    H -->|Released| I["Business User"]
+    I -->|Query| G
+    G -->|Response| I
 ```
 
 ---
 
-## Stage B — HIL Checkpoint
-
-**Input:** Structured WBS JSON
-**Output:** Approved constraint manifest (signed with estimator ID and timestamp)
-
-This is the mandatory human gate. Sentinel maps each WBS node against the client's internal labor category catalog, subcontractor roster, and equipment inventory. Line items with an existing internal source are marked `covered`. Line items with no match are marked `open` and queued for external research.
-
-The estimator reviews the `open` queue, confirms or overrides categorizations, and digitally approves the manifest. **No external research agent is spun up until this approval is recorded.** This is not a UX nicety. It is an architectural constraint that prevents unauthorized external data exposure and ensures the estimator retains direct responsibility for the scope definition.
-
-!!! warning "HIL is Not Optional"
-    Stage C will not execute without a cryptographically signed approval token from Stage B. This is enforced at the pipeline level, not the application level.
-
----
-
-## Stage C — Deep Research Fan-Out
-
-**Input:** Approved constraint manifest
-**Output:** Price-substantiated line item records with source citations
-
-For each `open` line item, Sentinel dispatches a dedicated MCP agent. Agents run in parallel, bounded by configurable concurrency limits. Each agent is scoped to a single line item and a defined source priority order:
-
-1. GSA Advantage / GSA eBuy (contract vehicles)
-2. SAM.gov historical contract awards (FPDS-NG data)
-3. FOIA-released pricing disclosures
-4. Verified open-market commercial sources
-
-The agent selects the **lowest verifiable price** that satisfies the specification constraints. It does not interpolate between sources. If no verifiable price is found within the source hierarchy, the line item is returned as `unresolved` with the research log attached—never with a fabricated value.
-
-**Source integrity:** Every price record includes the source URL, retrieval timestamp, contract vehicle number (if applicable), and the specific specification match criteria used.
-
----
-
-## Stage D — Compiler
-
-**Input:** Price-substantiated line item records + approved WBS
-**Output:** Locked financial baseline in XLSX and/or SQL
-
-The Compiler aggregates all priced line items, links each to its WBS node ID, applies the fee/wrap rate structure defined in the client's configuration, and generates the baseline artifact. The output schema is fixed and validated against the client's proposal template on every run.
-
-**Output targets:**
-
-- **XLSX:** Pre-formatted to client proposal template (cost volume structure)
-- **SQL:** Direct push to client's ERP or opportunity management database
-- **JSON:** Machine-readable baseline for downstream proposal automation tools
-
-No pricing data leaves the pipeline without the full source citation chain attached. The artifact is signed with a pipeline run ID that can be used to retrieve the full audit log at any point.
-
----
-
-## Configuration Schema
+## Configuration Reference
 ```yaml
 sentinel:
   pipeline:
-    concurrency_limit: 12         # Max parallel MCP agents in Stage C
-    hil_timeout_hours: 48         # Stage B approval window before RFP is flagged stale
-    unresolved_threshold: 0.05    # Max % of open line items allowed before Stage D is blocked
+    swarm_concurrency_limit: 12
+    hil_timeout_hours: 48
+    unresolved_threshold: 0.05
 
   sources:
-    priority_order:
-      - gsa_advantage
-      - fpds_ng
-      - foia_disclosures
-      - commercial_open_market
-    commercial_domain_allowlist:
-      - grainger.com
-      - mscdirect.com
-      - gsa.gov
-      - unison.com
+    deep_research_1:
+      type: web_search
+      protocol: mcp
+      domain_allowlist:
+        - gsa.gov
+        - sam.gov
+        - fpds.gov
+        - usaspending.gov
+    deep_research_2:
+      type: approved_tools
+      protocol: api
+      tools:
+        - gsa_advantage
+        - ebuy
+        - unison
+    deep_research_3:
+      type: proprietary_database
+      protocol: a2a
+      connection: client_config
 
   output:
-    format: [xlsx, sql, json]
-    fee_structure: client_config   # Loaded from client profile on instantiation
-    baseline_lock: true            # Prevents post-compilation edits without re-run
+    formats: [pdf, xlsx, json]
+    fee_structure: client_config
+    baseline_lock: true
 ```
