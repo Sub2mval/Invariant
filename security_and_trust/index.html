@@ -435,99 +435,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#human-in-the-loop-hil-design-rationale" class="md-nav__link">
+  <a href="#human-in-the-loop-why-it-exists" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Human-in-the-Loop (HIL): Design Rationale
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Human-in-the-Loop (HIL): Design Rationale">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#what-the-estimator-reviews-at-the-hil-gate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What the Estimator Reviews at the HIL Gate
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Handling
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Handling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#document-ingestion" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Document Ingestion
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#intermediate-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Intermediate Data
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#external-research-agents-stage-c" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        External Research Agents (Stage C)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#audit-log-retention" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Audit Log Retention
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#access-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Access Control
+        Human-in-the-Loop: Why It Exists
       
     </span>
   </a>
@@ -535,10 +446,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#compliance-posture" class="md-nav__link">
+  <a href="#data-handling-current-state" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compliance Posture
+        Data Handling: Current State
       
     </span>
   </a>
@@ -546,10 +457,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#vulnerability-disclosure" class="md-nav__link">
+  <a href="#what-we-can-back-up" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Vulnerability Disclosure
+        What We Can Back Up
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-we-cannot-back-up-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We Cannot Back Up Yet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Questions
       
     </span>
   </a>
@@ -611,127 +544,47 @@
 <!-- docs/security_and_trust.md -->
 
 <h1 id="security-trust">Security &amp; Trust<a class="headerlink" href="#security-trust" title="Permanent link">&para;</a></h1>
-<p><strong>Project Sentinel is deployed in regulated procurement environments.</strong> The architecture reflects the compliance requirements of FAR-covered contractors, not the convenience requirements of a SaaS vendor.</p>
+<p><strong>Project Sentinel is in pre-alpha.</strong> The architecture described here reflects the intended production design. Where something is not yet implemented, we say so directly.</p>
 <hr />
-<h2 id="human-in-the-loop-hil-design-rationale">Human-in-the-Loop (HIL): Design Rationale<a class="headerlink" href="#human-in-the-loop-hil-design-rationale" title="Permanent link">&para;</a></h2>
-<p>The HIL checkpoint in Stage B is not a feature. It is a structural constraint derived from two non-negotiable operational requirements:</p>
-<p><strong>1. Estimator accountability cannot be delegated to a system.</strong></p>
-<p>Under FAR 15.404-1, the contractor is responsible for the accuracy and completeness of its cost or pricing data. An automated system that generates a cost baseline without documented human review creates an unacceptable audit exposure. The HIL checkpoint produces a timestamped, identity-linked approval record that constitutes evidence of human review at the scope-definition stage.</p>
-<p><strong>2. Scope errors compound through the pipeline.</strong></p>
-<p>If Stage A misclassifies a labor category or misreads a cross-referenced attachment, and Stage C prices to that misclassification, the resulting baseline is wrong in a way that is structurally invisible—the numbers are internally consistent but externally incorrect. The HIL gate is the only point in the pipeline where a human with domain knowledge can catch a structural error before it is priced and compiled.</p>
-<h3 id="what-the-estimator-reviews-at-the-hil-gate">What the Estimator Reviews at the HIL Gate<a class="headerlink" href="#what-the-estimator-reviews-at-the-hil-gate" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Item</th>
-<th>Estimator Action</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>WBS nodes with no internal inventory match</td>
-<td>Confirm categorization or reassign</td>
-</tr>
-<tr>
-<td>Labor categories flagged as ambiguous</td>
-<td>Map to correct internal LCAT</td>
-</tr>
-<tr>
-<td>PWS references to unattached documents</td>
-<td>Provide the document or mark as unresolvable</td>
-</tr>
-<tr>
-<td>Scope items that exceed authorized NAICS coverage</td>
-<td>Flag for teaming or exclusion</td>
-</tr>
-<tr>
-<td>Override of any automatically-matched internal item</td>
-<td>Optional; logged with justification field</td>
-</tr>
-</tbody>
-</table>
-<p>The approval is recorded as a signed manifest (HMAC-SHA256, keyed to the user's API credential). The manifest is immutable after signing. Any modification to the WBS after signing requires a full pipeline re-run and a new HIL review.</p>
+<h2 id="human-in-the-loop-why-it-exists">Human-in-the-Loop: Why It Exists<a class="headerlink" href="#human-in-the-loop-why-it-exists" title="Permanent link">&para;</a></h2>
+<p>The HIL gates in the Sentinel pipeline are not a UX feature. They are a structural response to two facts about GovCon pricing work that do not change regardless of how good the underlying models get.</p>
+<p><strong>First: automated scope extraction makes mistakes.</strong> A 300-page solicitation with cross-referenced attachments, ambiguous labor category definitions, and agency-specific interpretations of FAR clauses will produce extraction errors. The HIL gate at the Execution Plan stage exists so a human with domain knowledge catches those errors before they are priced and compiled into a baseline your firm submits under its name.</p>
+<p><strong>Second: pricing judgment cannot be fully encoded.</strong> The lowest verifiable commercial price is not always the right price. Incumbent relationships, teaming commitments, and price-to-win strategy are context that lives in your estimator's head, not in a GSA schedule. The HIL gate at the Cost of Contract DB stage exists so that context can be applied before the baseline is locked.</p>
+<p>Every HIL approval is timestamped and identity-linked. The approval record is part of the audit log for that pipeline run. If you are ever asked to substantiate a pricing decision, that record is your evidence of human review.</p>
 <hr />
-<h2 id="data-handling">Data Handling<a class="headerlink" href="#data-handling" title="Permanent link">&para;</a></h2>
-<h3 id="document-ingestion">Document Ingestion<a class="headerlink" href="#document-ingestion" title="Permanent link">&para;</a></h3>
-<p>RFP documents are processed within the client's designated compute environment. Invariant does not operate a shared document processing cluster. The ingestion service is deployed as a containerized workload inside the client's cloud tenancy (AWS, Azure, or GCP) or on-premises infrastructure.</p>
-<p><strong>Documents are not transmitted to Invariant infrastructure at any point.</strong></p>
-<h3 id="intermediate-data">Intermediate Data<a class="headerlink" href="#intermediate-data" title="Permanent link">&para;</a></h3>
-<p>Pipeline intermediate state (WBS JSON, constraint manifests, agent research logs) is stored within the client's environment in an encrypted-at-rest object store. Sentinel uses AES-256 encryption for all stored artifacts. Encryption keys are managed by the client's KMS—Invariant does not hold or escrow keys.</p>
-<h3 id="external-research-agents-stage-c">External Research Agents (Stage C)<a class="headerlink" href="#external-research-agents-stage-c" title="Permanent link">&para;</a></h3>
-<p>Stage C agents make outbound requests to public data sources (GSA, SAM.gov, FPDS-NG, and approved commercial domains). These requests are read-only and do not transmit any proprietary client data. The query structure sent to external sources contains only the specification parameters for the line item being researched—never the RFP document content, company name, or opportunity identifier.</p>
-<p>The allowlist of external domains is defined in the client's configuration file and is enforced at the network policy level, not the application level.</p>
-<h3 id="audit-log-retention">Audit Log Retention<a class="headerlink" href="#audit-log-retention" title="Permanent link">&para;</a></h3>
-<p>All pipeline run logs, HIL approval records, and source citation chains are retained for 7 years by default, consistent with FAR 4.703 contract file retention requirements. Retention period is configurable. Logs are stored in the client's environment and are not accessible to Invariant.</p>
+<h2 id="data-handling-current-state">Data Handling: Current State<a class="headerlink" href="#data-handling-current-state" title="Permanent link">&para;</a></h2>
+<p>At the pre-alpha stage, here is what is true:</p>
+<ul>
+<li>RFP documents you submit are used only to run your pipeline. They are not used to train models, shared with other clients, or retained beyond the scope of your engagement.</li>
+<li>Pricing research conducted by the Deep Research Swarm queries publicly available sources — GSA, SAM.gov, FPDS-NG, and approved commercial sources. No proprietary client data is transmitted to those sources.</li>
+<li>The Cost of Contract DB for your runs is isolated to your engagement. No cross-client data bleed.</li>
+</ul>
+<p>We are a pre-alpha product. We do not yet have a formal data processing agreement, a published privacy policy, or third-party security certifications. If your firm requires those before engaging, we are not the right fit at this stage — and we would rather tell you that now than after you have invested time in a pilot conversation.</p>
 <hr />
-<h2 id="access-control">Access Control<a class="headerlink" href="#access-control" title="Permanent link">&para;</a></h2>
-<p>Sentinel uses role-based access control with four defined roles:</p>
-<table>
-<thead>
-<tr>
-<th>Role</th>
-<th>Permissions</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>sentinel.admin</code></td>
-<td>Full configuration access, user management, API key issuance</td>
-</tr>
-<tr>
-<td><code>sentinel.estimator</code></td>
-<td>HIL review and approval, WBS override, pipeline initiation</td>
-</tr>
-<tr>
-<td><code>sentinel.analyst</code></td>
-<td>Read-only access to pipeline outputs and audit logs</td>
-</tr>
-<tr>
-<td><code>sentinel.integration</code></td>
-<td>API-only service account for ERP/SQL push operations</td>
-</tr>
-</tbody>
-</table>
-<p>All authentication is federated through the client's identity provider (SAML 2.0 or OIDC). Sentinel does not maintain its own user credential store.</p>
+<h2 id="what-we-can-back-up">What We Can Back Up<a class="headerlink" href="#what-we-can-back-up" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>HIL architecture</strong> — implemented and enforced at the pipeline level. Stage C does not execute without a recorded Stage B approval.</li>
+<li><strong>Source citation on every price</strong> — every line item in the output includes the source URL, retrieval timestamp, and contract vehicle number where applicable.</li>
+<li><strong>Read-only external research</strong> — Deep Research agents make outbound read requests only. They do not submit forms, create accounts, or interact with external systems beyond retrieval.</li>
+<li><strong>Audit log per pipeline run</strong> — every run produces a full log of agent actions, HIL approvals, and pricing decisions. You receive this log as part of your output artifacts.</li>
+</ul>
 <hr />
-<h2 id="compliance-posture">Compliance Posture<a class="headerlink" href="#compliance-posture" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Framework</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>FAR 52.204-21 (Basic Safeguarding of Covered Contractor Information Systems)</td>
-<td>Compliant by architecture</td>
-</tr>
-<tr>
-<td>DFARS 252.204-7012 (Safeguarding Covered Defense Information)</td>
-<td>Configuration guide provided; client attestation required</td>
-</tr>
-<tr>
-<td>NIST SP 800-171 (CUI handling)</td>
-<td>Control mapping available on request</td>
-</tr>
-<tr>
-<td>SOC 2 Type II</td>
-<td>In progress; estimated completion Q3 2025</td>
-</tr>
-<tr>
-<td>FedRAMP</td>
-<td>Not applicable (client-deployed architecture; no shared cloud service)</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition info">
-<p class="admonition-title">CMMC Note</p>
-<p>Because Sentinel is deployed within the client's environment and does not process CUI on shared Invariant infrastructure, it does not introduce a new CMMC assessment scope boundary. Confirm with your CMMC Registered Practitioner Organization before assertion.</p>
+<h2 id="what-we-cannot-back-up-yet">What We Cannot Back Up Yet<a class="headerlink" href="#what-we-cannot-back-up-yet" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Formal compliance certifications (SOC 2, FedRAMP, CMMC)</li>
+<li>A signed data processing agreement</li>
+<li>A published SLA</li>
+<li>On-premises or private cloud deployment</li>
+</ul>
+<p>These are on the roadmap. They are not available today. If your procurement or legal team requires any of them as a condition of engagement, the honest answer is that we cannot meet that bar yet.</p>
+<hr />
+<h2 id="questions">Questions<a class="headerlink" href="#questions" title="Permanent link">&para;</a></h2>
+<p>If you have specific security or data handling questions before requesting a pilot, include them in the access request form. We will answer them directly.</p>
+<div style="text-align: center; margin: 2.5rem 0;">
+  <a href="https://forms.google.com/your-form-link-here" target="_blank" style="background-color: #e65100; color: white; padding: 14px 32px; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.03em;">
+    REQUEST PILOT ACCESS →
+  </a>
 </div>
-<hr />
-<h2 id="vulnerability-disclosure">Vulnerability Disclosure<a class="headerlink" href="#vulnerability-disclosure" title="Permanent link">&para;</a></h2>
-<p>Invariant maintains a responsible disclosure program. Security researchers may submit findings to <code>security@invariant.io</code>. We commit to acknowledging receipt within 2 business days and providing a remediation timeline within 10 business days for confirmed vulnerabilities.</p>
 
 
 
