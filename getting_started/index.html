@@ -460,10 +460,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#what-a-pilot-engagement-looks-like" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        What a Pilot Engagement Looks Like
       
     </span>
   </a>
@@ -471,10 +471,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#deployment" class="md-nav__link">
+  <a href="#what-we-ask-for-upfront" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Deployment
+        What We Ask For Upfront
       
     </span>
   </a>
@@ -482,71 +482,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-api-exports" class="md-nav__link">
+  <a href="#pricing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core API Exports
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Core API Exports">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#post-v1pipelinerun" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        POST /v1/pipeline/run
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-v1pipelinerun_idstatus" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /v1/pipeline/{run_id}/status
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-v1pipelinerun_idbaseline" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /v1/pipeline/{run_id}/baseline
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-v1pipelinerun_idaudit" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /v1/pipeline/{run_id}/audit
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#module-1-samgov-sourcing-mcp-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Module 1 — SAM.gov Sourcing MCP Server
+        Pricing
       
     </span>
   </a>
@@ -554,21 +493,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#module-2-traceability-deepresearch-logs" class="md-nav__link">
+  <a href="#request-access" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Module 2 — Traceability &amp; DeepResearch Logs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sdk" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SDK
+        Request Access
       
     </span>
   </a>
@@ -603,177 +531,42 @@
 <!-- docs/getting_started.md -->
 
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
-<p><strong>Modules &amp; Integration Reference</strong></p>
-<p>Project Sentinel is designed for integration into existing GovCon business development and proposal workflows. It exposes a typed API, two purpose-built MCP server modules, and a configuration layer that adapts to your existing ERP and document management infrastructure.</p>
+<p><strong>Project Sentinel is currently in closed pre-alpha.</strong></p>
+<p>We are working directly with a small number of GovCon firms to validate the engine against live solicitations. This is not a beta program with a waitlist. It is a working engagement with a narrow group of operators who have agreed to run real RFPs through the system and give honest feedback on the output.</p>
+<p>If you are here, you are either evaluating whether to request access or someone at Invariant pointed you here directly.</p>
 <hr />
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p>Before deploying Sentinel, confirm the following:</p>
+<h2 id="what-a-pilot-engagement-looks-like">What a Pilot Engagement Looks Like<a class="headerlink" href="#what-a-pilot-engagement-looks-like" title="Permanent link">&para;</a></h2>
+<p>We keep it simple at this stage:</p>
 <ul>
-<li>[ ] Cloud tenancy or on-premises Kubernetes cluster meeting <a href="../architecture/">infrastructure requirements</a></li>
-<li>[ ] Identity provider configured for SAML 2.0 or OIDC federation</li>
-<li>[ ] Client configuration profile completed (NAICS codes, labor category catalog, fee structure, ERP connection string)</li>
-<li>[ ] At least one user provisioned with the <code>sentinel.estimator</code> role</li>
-<li>[ ] Network policy configured to allow outbound HTTPS to the <a href="../security_and_trust/#external-research-agents-stage-c">approved external domain allowlist</a></li>
+<li>You bring <strong>1–3 active or recently closed solicitations</strong></li>
+<li>We run them through the full Sentinel pipeline</li>
+<li>You receive the Bid Cost Report and Excel baseline for each</li>
+<li>You tell us where the output is right, where it is wrong, and what is missing</li>
 </ul>
+<p>No integration work on your end. No new software to install. No changes to your existing proposal process.</p>
 <hr />
-<h2 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h2>
-<p>Sentinel is distributed as a Helm chart. Standard deployment targets AWS EKS, Azure AKS, and GCP GKE. On-premises Kubernetes (1.27+) is supported with a separate configuration profile.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>invariant<span class="w"> </span>https://charts.invariant.io
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>helm<span class="w"> </span>repo<span class="w"> </span>update
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>helm<span class="w"> </span>install<span class="w"> </span>sentinel<span class="w"> </span>invariant/project-sentinel<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>--namespace<span class="w"> </span>sentinel<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>--create-namespace<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span>--values<span class="w"> </span>./sentinel-client-config.yaml
-</code></pre></div></p>
-<p>The client configuration file (<code>sentinel-client-config.yaml</code>) is generated during onboarding and contains your NAICS codes, labor category mappings, fee structure, and ERP connection parameters. It is not a public artifact.</p>
-<hr />
-<h2 id="core-api-exports">Core API Exports<a class="headerlink" href="#core-api-exports" title="Permanent link">&para;</a></h2>
-<p>All API endpoints are authenticated via Bearer token (API key issued to a <code>sentinel.integration</code> service account). Base URL is the internal cluster endpoint exposed via your ingress controller.</p>
-<h3 id="post-v1pipelinerun"><code>POST /v1/pipeline/run</code><a class="headerlink" href="#post-v1pipelinerun" title="Permanent link">&para;</a></h3>
-<p>Initiate a new pipeline run against an uploaded RFP document.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="err">POST /v1/pipeline/run</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="err">Authorization: Bearer {api_key}</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="err">Content-Type: multipart/form-data</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="err">rfp_document: [binary]</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="err">opportunity_id: &quot;OPP-2025-0047&quot;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="err">override_config: {}</span>
-</code></pre></div></p>
-<p><strong>Response:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sntnl_run_a1b2c3d4&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stage_a_processing&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;opportunity_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;OPP-2025-0047&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-12T14:32:00Z&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">&quot;hil_review_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://your-sentinel-instance/review/sntnl_run_a1b2c3d4&quot;</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
-</code></pre></div></p>
-<hr />
-<h3 id="get-v1pipelinerun_idstatus"><code>GET /v1/pipeline/{run_id}/status</code><a class="headerlink" href="#get-v1pipelinerun_idstatus" title="Permanent link">&para;</a></h3>
-<p>Poll pipeline status. Poll interval should not exceed 1 request per 30 seconds.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sntnl_run_a1b2c3d4&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;awaiting_hil_approval&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;open_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">&quot;covered_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">41</span><span class="p">,</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="nt">&quot;hil_assigned_to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;j.smith@yourcompany.com&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="nt">&quot;hil_deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-14T14:32:00Z&quot;</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
-</code></pre></div></p>
-<p><strong>Status values:</strong> <code>stage_a_processing</code> → <code>awaiting_hil_approval</code> → <code>stage_c_research</code> → <code>stage_d_compiling</code> → <code>complete</code> → <code>failed</code></p>
-<hr />
-<h3 id="get-v1pipelinerun_idbaseline"><code>GET /v1/pipeline/{run_id}/baseline</code><a class="headerlink" href="#get-v1pipelinerun_idbaseline" title="Permanent link">&para;</a></h3>
-<p>Retrieve the compiled financial baseline after the run reaches <code>complete</code> status.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sntnl_run_a1b2c3d4&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;opportunity_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;OPP-2025-0047&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;baseline_locked_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-13T09:14:22Z&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&quot;total_direct_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4218750.00</span><span class="p">,</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="nt">&quot;total_loaded_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5320000.00</span><span class="p">,</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="nt">&quot;line_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="nt">&quot;unresolved_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">&quot;exports&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="nt">&quot;xlsx&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/v1/pipeline/sntnl_run_a1b2c3d4/export/xlsx&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nt">&quot;json&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/v1/pipeline/sntnl_run_a1b2c3d4/export/json&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="nt">&quot;sql_push_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;delivered&quot;</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="p">}</span>
-</code></pre></div></p>
-<hr />
-<h3 id="get-v1pipelinerun_idaudit"><code>GET /v1/pipeline/{run_id}/audit</code><a class="headerlink" href="#get-v1pipelinerun_idaudit" title="Permanent link">&para;</a></h3>
-<p>Retrieve the full audit log for a completed run, including HIL approval record and all source citations.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sntnl_run_a1b2c3d4&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;hil_approval&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;approved_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;j.smith@yourcompany.com&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;approved_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-12T18:44:01Z&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">&quot;manifest_hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sha256:e3b0c44298fc1c149afb...&quot;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="p">},</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="nt">&quot;line_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">      </span><span class="nt">&quot;wbs_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.2.3&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Field Technician II – Year 1&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">      </span><span class="nt">&quot;price_selected&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">87.50</span><span class="p">,</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">      </span><span class="nt">&quot;price_unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;per hour&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GSA MAS Schedule 70, Contract GS-35F-0119J&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">      </span><span class="nt">&quot;source_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.gsaadvantage.gov/...&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">      </span><span class="nt">&quot;retrieved_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-09-12T20:11:44Z&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">      </span><span class="nt">&quot;competing_prices_considered&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="p">}</span>
-</code></pre></div></p>
-<hr />
-<h2 id="module-1-samgov-sourcing-mcp-server">Module 1 — SAM.gov Sourcing MCP Server<a class="headerlink" href="#module-1-samgov-sourcing-mcp-server" title="Permanent link">&para;</a></h2>
-<p><strong>Function:</strong> Continuously retrieves and scores active SAM.gov solicitations against the client's configured capacity profile.</p>
-<p>The Sourcing module runs as a persistent MCP server process. It polls SAM.gov at a configurable interval, filters solicitations by NAICS code, set-aside type, place of performance, and contract value range, and scores each opportunity against the client's current pipeline load and past performance record.</p>
-<p>It does not bid on anything. It does not send notifications. It writes to a structured opportunity queue that your BD team reviews.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">sourcing_module</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">poll_interval_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">naics_codes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;541330&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;541519&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;237310&quot;</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">set_aside_types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8A&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;SDVOSB&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;WOSB&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;FULL_AND_OPEN&quot;</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">contract_value_min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000000</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">contract_value_max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200000000</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">place_of_performance_states</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;VA&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;MD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;DC&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;TX&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CA&quot;</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="nt">scoring_weights</span><span class="p">:</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">past_performance_match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.35</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">naics_primary_match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.30</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">capacity_headroom</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.20</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">incumbent_signal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.15</span>
-</code></pre></div></p>
-<p><strong>Output:</strong> Structured opportunity records pushed to the <code>sentinel.opportunities</code> table in your ERP or a standalone PostgreSQL schema.</p>
-<hr />
-<h2 id="module-2-traceability-deepresearch-logs">Module 2 — Traceability &amp; DeepResearch Logs<a class="headerlink" href="#module-2-traceability-deepresearch-logs" title="Permanent link">&para;</a></h2>
-<p><strong>Function:</strong> Provides a structured audit trail of every constraint evaluated and every pricing decision made during a pipeline run.</p>
-<p>Every Stage C agent writes a research log record for each line item it prices. The Traceability module indexes these records and exposes them via API and a read-only UI component that can be embedded in your proposal management system.</p>
-<p>Each traceability record contains:</p>
+<h2 id="what-we-ask-for-upfront">What We Ask For Upfront<a class="headerlink" href="#what-we-ask-for-upfront" title="Permanent link">&para;</a></h2>
+<p>Before the first run, we will ask for:</p>
 <ul>
-<li>The specification string used to query external sources</li>
-<li>All sources queried and prices found</li>
-<li>The selection rationale (lowest verifiable price meeting spec)</li>
-<li>The constraint check result (met / violated / unresolvable)</li>
-<li>The agent run ID and timestamp</li>
+<li>A sample solicitation from your pipeline — ideally one you have already priced manually so we can benchmark the output</li>
+<li>Your internal labor category list and loaded rates</li>
+<li>A brief on your market focus — NAICS codes, set-aside certifications, and typical contract value range</li>
 </ul>
-<p>This log is the artifact your pricing analyst attaches to the cost volume as substantiation. It is not a summary. It is a machine-generated evidence record.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Retrieve traceability log for a specific line item</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>GET<span class="w"> </span>/v1/pipeline/<span class="o">{</span>run_id<span class="o">}</span>/trace/<span class="o">{</span>wbs_id<span class="o">}</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Export full DeepResearch log as PDF attachment</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>GET<span class="w"> </span>/v1/pipeline/<span class="o">{</span>run_id<span class="o">}</span>/trace/export/pdf
-</code></pre></div></p>
+<p>That is it for now. As the platform matures, the onboarding process will become more structured. At this stage, we move fast and keep the overhead low.</p>
 <hr />
-<h2 id="sdk">SDK<a class="headerlink" href="#sdk" title="Permanent link">&para;</a></h2>
-<p>A Python SDK is available for teams integrating Sentinel into existing proposal automation workflows.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>sentinel-sdk
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sentinel</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentinelClient</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">SentinelClient</span><span class="p">(</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://sentinel.yourcompany.internal&quot;</span><span class="p">,</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;sk_live_...&quot;</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">)</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># Initiate a pipeline run</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    <span class="n">rfp_path</span><span class="o">=</span><span class="s2">&quot;./solicitations/W912DY-25-R-0004.pdf&quot;</span><span class="p">,</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">opportunity_id</span><span class="o">=</span><span class="s2">&quot;OPP-2025-0047&quot;</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="p">)</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="c1"># Poll until HIL approval is required</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">run</span><span class="o">.</span><span class="n">wait_for_stage</span><span class="p">(</span><span class="s2">&quot;awaiting_hil_approval&quot;</span><span class="p">)</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HIL review required: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">hil_review_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="c1"># After approval, wait for completion and retrieve baseline</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="n">run</span><span class="o">.</span><span class="n">wait_for_completion</span><span class="p">()</span>
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="n">baseline</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">get_baseline</span><span class="p">()</span>
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total loaded cost: $</span><span class="si">{</span><span class="n">baseline</span><span class="o">.</span><span class="n">total_loaded_cost</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</code></pre></div></p>
+<h2 id="pricing">Pricing<a class="headerlink" href="#pricing" title="Permanent link">&para;</a></h2>
+<p>Sentinel is <strong>$15,000/month</strong> at general availability.</p>
+<p>Pilot participants who proceed to a paid engagement will receive preferred pricing. We are not publishing the pilot terms here — that conversation happens directly.</p>
 <hr />
-<div class="admonition question">
-<p class="admonition-title">Ready to run your first solicitation?</p>
-<p>Contact your Invariant solutions engineer or <a href="../#pilot-access">request pilot access</a> to receive your client configuration file and deployment credentials.</p>
+<h2 id="request-access">Request Access<a class="headerlink" href="#request-access" title="Permanent link">&para;</a></h2>
+<div style="text-align: center; margin: 2.5rem 0;">
+  <a href="https://forms.google.com/your-form-link-here" target="_blank" style="background-color: #e65100; color: white; padding: 14px 32px; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.03em;">
+    REQUEST PILOT ACCESS →
+  </a>
+</div>
+
+<div class="admonition note">
+<p>We read every request personally. If the timing is right, we will reach out to schedule a call. If it is not, we will tell you that directly.</p>
 </div>
 
 
