@@ -46,7 +46,7 @@ Pilot participants who proceed to a paid engagement will receive preferred prici
 ## Request Access
 
 <div style="text-align: center; margin: 2.5rem 0;">
-  <a href="https://forms.google.com/your-form-link-here" target="_blank" style="background-color: #e65100; color: white; padding: 14px 32px; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.03em;">
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSe9BzXjzuqd1-kILxavX0NV8PTgovWpwyVpSMWLl1d7-vhVlw/viewform?usp=publish-editor" target="_blank" style="background-color: #e65100; color: white; padding: 14px 32px; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.03em;">
     REQUEST PILOT ACCESS →
   </a>
 </div>
