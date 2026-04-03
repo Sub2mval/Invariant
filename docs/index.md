@@ -7,80 +7,76 @@ hide:
 
 # Project Sentinel
 
-**Deterministic pricing infrastructure for GovCon and Civilian Infrastructure contractors.**
+**A deterministic pricing engine for US Government Contract and Civilian Infrastructure solicitations.**
 
-*Built by Invariant. Deployed at the proposal desk.*
+*Built by Invariant. Currently in closed pre-alpha.*
 
 ---
 
-## The $150,000 Problem Sitting in Your Estimating Queue
+## The Problem
 
-Every time your team receives a SAM.gov solicitation between $10M and $200M in total contract value, you are committing one of your most expensive resources—a senior estimator at $90–$140k/year fully-loaded cost—to a process that has not changed since 2004.
+A competitive SAM.gov solicitation between $10M and $200M in total contract value arrives as a 300-page PDF. Your senior estimator — your most expensive and least replaceable resource — spends three weeks reading it, extracting a Work Breakdown Structure by hand, cross-referencing GSA schedules, and building a cost basis in a spreadsheet that is not version-controlled and not reproducible.
 
-They open a 300-page PDF. They manually read Section L, Section M, and the PWS. They extract a Work Breakdown Structure by hand. They cross-reference GSA schedules, check incumbent pricing where available, and build a cost basis in a spreadsheet that is not version-controlled, not auditable, and not reproducible.
+That is not the cost. That is the symptom.
 
-That process takes **three weeks per RFP**.
+The cost is the bids you do not submit because your estimating capacity is the ceiling. The proposals that miss the competitive range because the pricing research was incomplete. The contracts awarded at margins that were wrong from the first number entered.
 
-For a company pursuing 8–12 solicitations per year, that is **24 weeks of senior estimator capacity** consumed by document extraction and commercial price research. That is not strategy. That is transcription.
-
-The downstream cost is not the labor hours. It is the **bids you do not submit**, the **proposals that miss the competitive range**, and the **contracts awarded at margins that destroy the program before it starts**.
+For a mid-market GovCon firm pursuing 8–12 solicitations per year, this is not an operational inconvenience. It is the primary constraint on revenue growth.
 
 ---
 
 ## What Project Sentinel Does
 
-Project Sentinel is a **multi-agent pricing engine** that processes a SAM.gov RFP and returns a cross-referenced, fully auditable financial baseline—without hallucination, without opaque inference, and without replacing your estimator's judgment.
+Sentinel ingests a solicitation document and returns a fully sourced, human-approved financial baseline. It does not generate narrative. It does not summarize. It produces a structured cost artifact — every line item priced, every price traced to a verifiable source, every decision logged — that your proposal team can defend on the day it is submitted.
 
-It does not generate narrative. It does not summarize documents. It produces a **structured, traceable cost artifact** that your proposal team can defend in a DCAA audit on day one.
+The pipeline runs four stages:
 
-The engine runs four deterministic stages:
+| Stage | What Happens |
+|---|---|
+| **Task Decomposer** | Extracts a formal Work Breakdown Structure from the solicitation |
+| **HIL Gate** | Your estimator reviews the scope, approves it, and the pipeline continues |
+| **Deep Research Swarm** | Parallel agents find the lowest verifiable commercial price for every open line item |
+| **Long Context Agent** | Compiles the approved pricing into a locked Bid Cost Report and Excel baseline |
 
-| Stage | Function | Output |
-|---|---|---|
-| **Task Decomposer** | Ingests the RFP and extracts a formal, leveled WBS against the SOW | Structured WBS in JSON |
-| **HIL Checkpoint** | Maps extracted line items to internal inventory and pauses for estimator approval before external research begins | Approved constraint manifest |
-| **Deep Research Fan-Out** | Spins parallel MCP agents to retrieve the lowest verifiable commercial price for every open line item | Price-substantiated line items with source citations |
-| **Compiler** | Aggregates all findings into a locked, cross-referenced financial baseline | `.xlsx` / SQL push-ready output |
-
-Every price chosen is traceable to a source. Every constraint met or violated is logged. The output is a baseline—not a guess.
+Human review is not optional. It is enforced at the architecture level. No external research runs without an approved scope. No baseline compiles without an approved cost database. Your estimator's judgment stays in the loop at every stage that requires it.
 
 ---
 
 ## Who This Is For
 
-Project Sentinel is not a general-purpose procurement tool. It is scoped to a specific operating environment:
+Sentinel is built for one operating environment:
 
-- **Company size:** $50M–$500M in annual revenue
-- **Contract vehicle:** FAR Part 15 negotiated acquisitions, IDIQ task orders, and competitive 8(a)/SDVOSB awards
-- **Solicitation complexity:** RFPs with 150–500 pages, multiple CLINs, and mixed labor/ODC structures
-- **Internal condition:** The company has at least one senior estimator whose time is the binding constraint on bid volume
+- **GovCon prime contractors** with $50M–$500M in annual revenue
+- Pursuing **FAR Part 15 negotiated acquisitions, IDIQ task orders, and competitive set-aside awards**
+- Where the binding constraint on bid volume is **senior estimator capacity, not business development pipeline**
 
-If your win rate is acceptable but your **bid volume is the ceiling**, Sentinel removes the ceiling.
+If your win rate is acceptable but the number of qualified bids you submit per year is the ceiling, that is the problem Sentinel is built to remove.
+
+---
+
+## Current Status
+
+Sentinel is in closed pre-alpha. We are working directly with a small number of GovCon firms to validate the engine against live solicitations. Access is not self-serve. There is no public API. There is no general availability date we are prepared to commit to.
+
+What exists today: a working pipeline, real output artifacts, and a direct engagement model with the firms in the current pilot cohort.
+
+What does not exist yet: third-party security certifications, a formal compliance program, or an SDK. We document what is and is not available on the [Security & Trust](security_and_trust.md) page. We recommend reading it before requesting access.
 
 ---
 
 ## The Commercial Case
 
-A mid-market GovCon firm that increases qualified bid submissions from 8 to 14 per year—while holding win rate constant at 22%—generates approximately **1.3 additional contract awards annually**.
+A firm that increases qualified bid submissions from 8 to 14 per year — while holding win rate constant at 22% — generates approximately 1.3 additional contract awards annually. At an average contract value of $8M with a 12% fee, that is over $1M in additional gross margin per year.
 
-At an average contract value of $8M with a 12% fee, that is **$1.04M in additional gross margin per year**.
+Sentinel's platform price at general availability is **$15,000/month**.
 
-Sentinel's platform license is **$15,000/month**.
-
-The payback period on the first incremental win is measured in weeks, not quarters.
+Pilot participants who proceed to a paid engagement receive preferred pricing. That conversation happens directly, not on this page.
 
 ---
 
-## Pilot Access
+## Request Pilot Access
 
-Sentinel is currently in a closed pilot program with select F.inc partners and GovCon prime contractors.
-
-Pilot participants receive:
-
-- Full platform access for 90 days
-- Onboarding with a dedicated Invariant solutions engineer
-- Processing of up to 3 live solicitations with full audit output
-- Direct input into the product roadmap
+We are accepting a limited number of pilot engagements. If your firm operates in the target market and you have a live solicitation you are willing to run through the engine, that is the basis for a conversation.
 
 <div style="text-align: center; margin: 2.5rem 0;">
   <a href="https://forms.google.com/your-form-link-here" target="_blank" style="background-color: #e65100; color: white; padding: 14px 32px; font-size: 1rem; font-weight: 600; text-decoration: none; border-radius: 4px; letter-spacing: 0.03em;">
@@ -88,7 +84,5 @@ Pilot participants receive:
   </a>
 </div>
 
----
-
-!!! note "Compliance Note"
-    Project Sentinel does not store RFP documents on shared infrastructure. All document ingestion occurs within your designated compute environment. See [Security & Trust](security_and_trust.md) for the full data handling specification.
+!!! note ""
+    We read every request personally. If the fit is right, we will reach out to schedule a call. If it is not the right time, we will tell you that directly.
