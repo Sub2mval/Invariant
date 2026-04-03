@@ -329,61 +329,7 @@
 <p><strong>Project Sentinel is a multi-agent, human-gated pricing pipeline.</strong> Each stage has a defined input contract, a defined output schema, and explicit failure modes. The Cost of Contract DB is the central state store — every agent reads from and writes to it. No agent communicates directly with another.</p>
 <hr/>
 <h2 id="pipeline-overview">Pipeline Overview<a class="headerlink" href="#pipeline-overview" title="Permanent link">¶</a></h2>
-<pre class="mermaid"><code>flowchart TD
-    SAM["SAM.gov"] --&gt;|creates| PDF["Gov Contract\nSolicitation PDF"]
-    PDF --&gt;|read by| TDA["Task Decomposer\nAgent"]
-
-    TDA --&gt;|creates| EP["Execution Plan"]
-    EP --&gt;|read by| HA["Human Auditor"]
-    HA --&gt;|Approve / Modify| EP
-
-    EP --&gt;|read by| CA["Checklist Agent"]
-    CA --&gt;|Constraint queries| CDB["Client Database"]
-    CDB --&gt;|results| CA
-
-    CA --&gt;|creates| CCDB[("Cost of Contract DB")]
-
-    CCDB --&gt;|queries| DR1["Deep Research 1"]
-    CCDB --&gt;|queries| DR2["Deep Research 2"]
-    CCDB --&gt;|queries| DR3["Deep Research 3"]
-
-    DR1 --&gt;|MCP / API / A2A| WEB["Web Search"]
-    DR2 --&gt;|MCP / API / A2A| TOOLS["Approved Tools"]
-    DR3 --&gt;|MCP / API / A2A| PROPDB["Proprietary Database"]
-
-    DR1 --&gt;|results| CCDB
-    DR2 --&gt;|results| CCDB
-    DR3 --&gt;|results| CCDB
-
-    HA --&gt;|Approve / Modify| CCDB
-
-    CCDB --&gt;|summarized| LCA["Long Context Agent"]
-    LCA --&gt;|creates| PDF2["Bid Cost\nReport PDF"]
-    LCA --&gt;|creates| XLS["Excel Baseline"]
-
-    BU["Business User"] --&gt;|queries| LCA
-    LCA --&gt;|response| BU
-
-    HA --&gt;|Approve / Modify| LCA
-
-    subgraph invariant["Invariant System"]
-        TDA
-        EP
-        CA
-        CCDB
-        DR1
-        DR2
-        DR3
-        LCA
-    end
-
-    subgraph swarm["Deep Research Swarm"]
-        DR1
-        DR2
-        DR3
-    end
-</code></pre>
-<hr/>
+<p><img alt="Sentinel Architecture Diagram" src="../arch.png"/></p>
 <h2 id="stage-a-task-decomposer-agent">Stage A — Task Decomposer Agent<a class="headerlink" href="#stage-a-task-decomposer-agent" title="Permanent link">¶</a></h2>
 <p><strong>Input:</strong> SAM.gov Gov Contract Solicitation PDF
 <strong>Output:</strong> Structured Execution Plan</p>
